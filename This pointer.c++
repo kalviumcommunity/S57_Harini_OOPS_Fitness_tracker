@@ -15,13 +15,14 @@ public:
     double getCaloriesBurned() const { return caloriesBurned; }
     std::string getType() const { return type; }
     int getDuration() const { return duration; }
+    virtual ~Exercise() {} // virtual destructor
 };
 
 class Cardio : public Exercise {
 public:
     Cardio(int duration) : Exercise("Cardio", duration) {}
     void calculateCalories() override {
-        caloriesBurned = duration * 8.0; // eg calculation
+        caloriesBurned = duration * 8.0; // example calculation
     }
 };
 
@@ -29,7 +30,7 @@ class Strength : public Exercise {
 public:
     Strength(int duration) : Exercise("Strength", duration) {}
     void calculateCalories() override {
-        caloriesBurned = duration * 5.0; // eg calculation
+        caloriesBurned = duration * 5.0; // example calculation
     }
 };
 
@@ -39,10 +40,15 @@ private:
     int age;
     double weight; // in kg
     double height; // in cm
-    std::vector<Exercise*> exercises;
+    std::vector<Exercise*> exercises; // vector of pointers
 
 public:
     User(std::string n, int a, double w, double h) : name(n), age(a), weight(w), height(h) {}
+    ~User() {
+        for (auto& exercise : exercises) {
+            delete exercise; // free dynamically allocated memory
+        }
+    }
     void addExercise(Exercise* exercise) {
         exercise->calculateCalories();
         exercises.push_back(exercise);
@@ -102,7 +108,6 @@ int main() {
         std::cout << "Do you want to log another exercise? (y/n): ";
         std::cin >> choice;
 
-        
         std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
 
     } while (choice == 'y' || choice == 'Y');

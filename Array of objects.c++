@@ -15,13 +15,14 @@ public:
     double getCaloriesBurned() const { return caloriesBurned; }
     std::string getType() const { return type; }
     int getDuration() const { return duration; }
+    virtual ~Exercise() {} // virtual destructor
 };
 
 class Cardio : public Exercise {
 public:
     Cardio(int duration) : Exercise("Cardio", duration) {}
     void calculateCalories() override {
-        caloriesBurned = duration * 8.0; // eg calculation
+        caloriesBurned = duration * 8.0; // example calculation
     }
 };
 
@@ -29,7 +30,7 @@ class Strength : public Exercise {
 public:
     Strength(int duration) : Exercise("Strength", duration) {}
     void calculateCalories() override {
-        caloriesBurned = duration * 5.0; // eg calculation
+        caloriesBurned = duration * 5.0; // example calculation
     }
 };
 
@@ -39,13 +40,28 @@ private:
     int age;
     double weight; // in kg
     double height; // in cm
-    std::vector<Exercise*> exercises;
+    std::vector<Exercise*> exercises; // vector of pointers to store different exercise types
 
 public:
     User(std::string n, int a, double w, double h) : name(n), age(a), weight(w), height(h) {}
-    void addExercise(Exercise* exercise) {
-        exercise->calculateCalories();
-        exercises.push_back(exercise);
+    ~User() {
+        for (auto exercise : exercises) {
+            delete exercise; // free dynamically allocated memory
+        }
+    }
+    void addExercise(const Exercise& exercise) {
+        Exercise* newExercise = nullptr;
+
+        if (exercise.getType() == "Cardio") {
+            newExercise = new Cardio(exercise.getDuration());
+        } else if (exercise.getType() == "Strength") {
+            newExercise = new Strength(exercise.getDuration());
+        }
+
+        if (newExercise) {
+            newExercise->calculateCalories();
+            exercises.push_back(newExercise);
+        }
     }
     double totalCaloriesBurned() const {
         double total = 0;
@@ -94,15 +110,16 @@ int main() {
         std::cin >> duration;
 
         if (type == 1) {
-            user.addExercise(new Cardio(duration));
+            Cardio cardio(duration);
+            user.addExercise(cardio);
         } else if (type == 2) {
-            user.addExercise(new Strength(duration));
+            Strength strength(duration);
+            user.addExercise(strength);
         }
 
         std::cout << "Do you want to log another exercise? (y/n): ";
         std::cin >> choice;
 
-        
         std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
 
     } while (choice == 'y' || choice == 'Y');
