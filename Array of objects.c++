@@ -127,4 +127,4 @@ int main() {
     user.displayProgress();
 
     return 0;
-}
+};
