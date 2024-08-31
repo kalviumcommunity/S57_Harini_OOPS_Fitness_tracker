@@ -106,7 +106,7 @@ int main() {
     // Properly create an array of User objects
     User users[numUsers];
 
-    // Initialize each user
+    // Initialize each user 
     for (int i = 0; i < numUsers; ++i) {
         std::string name;
         int age;
