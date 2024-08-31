@@ -44,15 +44,33 @@ private:
 
 public:
     User(std::string n, int a, double w, double h) : name(n), age(a), weight(w), height(h) {}
-    ~User() {
-        for (auto& exercise : exercises) {
-            delete exercise; // free dynamically allocated memory
-        }
+
+    // Using 'this' pointer to return the current object reference
+    User& setName(const std::string& n) {
+        this->name = n;
+        return *this;
     }
+
+    User& setAge(int a) {
+        this->age = a;
+        return *this;
+    }
+
+    User& setWeight(double w) {
+        this->weight = w;
+        return *this;
+    }
+
+    User& setHeight(double h) {
+        this->height = h;
+        return *this;
+    }
+
     void addExercise(Exercise* exercise) {
         exercise->calculateCalories();
         exercises.push_back(exercise);
     }
+
     double totalCaloriesBurned() const {
         double total = 0;
         for (const auto& exercise : exercises) {
@@ -60,12 +78,19 @@ public:
         }
         return total;
     }
+
     void displayProgress() const {
         std::cout << "User: " << name << std::endl;
         std::cout << "Total Calories Burned: " << totalCaloriesBurned() << std::endl;
         for (const auto& exercise : exercises) {
             std::cout << "Exercise: " << exercise->getType() << ", Duration: " << exercise->getDuration() 
                       << " minutes, Calories Burned: " << exercise->getCaloriesBurned() << std::endl;
+        }
+    }
+
+    ~User() {
+        for (auto& exercise : exercises) {
+            delete exercise; // free dynamically allocated memory
         }
     }
 };

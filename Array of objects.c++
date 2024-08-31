@@ -40,29 +40,39 @@ private:
     int age;
     double weight; // in kg
     double height; // in cm
-    std::vector<Exercise*> exercises; // vector of pointers to store different exercise types
+    std::vector<Exercise*> exercises; // vector of pointers
 
 public:
+    User() : name(""), age(0), weight(0), height(0) {}
+
     User(std::string n, int a, double w, double h) : name(n), age(a), weight(w), height(h) {}
-    ~User() {
-        for (auto exercise : exercises) {
-            delete exercise; // free dynamically allocated memory
-        }
-    }
-    void addExercise(const Exercise& exercise) {
-        Exercise* newExercise = nullptr;
 
-        if (exercise.getType() == "Cardio") {
-            newExercise = new Cardio(exercise.getDuration());
-        } else if (exercise.getType() == "Strength") {
-            newExercise = new Strength(exercise.getDuration());
-        }
-
-        if (newExercise) {
-            newExercise->calculateCalories();
-            exercises.push_back(newExercise);
-        }
+    // Using 'this' pointer to return the current object reference
+    User& setName(const std::string& n) {
+        this->name = n;
+        return *this;
     }
+
+    User& setAge(int a) {
+        this->age = a;
+        return *this;
+    }
+
+    User& setWeight(double w) {
+        this->weight = w;
+        return *this;
+    }
+
+    User& setHeight(double h) {
+        this->height = h;
+        return *this;
+    }
+
+    void addExercise(Exercise* exercise) {
+        exercise->calculateCalories();
+        exercises.push_back(exercise);
+    }
+
     double totalCaloriesBurned() const {
         double total = 0;
         for (const auto& exercise : exercises) {
@@ -70,6 +80,7 @@ public:
         }
         return total;
     }
+
     void displayProgress() const {
         std::cout << "User: " << name << std::endl;
         std::cout << "Total Calories Burned: " << totalCaloriesBurned() << std::endl;
@@ -78,53 +89,70 @@ public:
                       << " minutes, Calories Burned: " << exercise->getCaloriesBurned() << std::endl;
         }
     }
+
+    ~User() {
+        for (auto& exercise : exercises) {
+            delete exercise; // free dynamically allocated memory
+        }
+    }
 };
 
 int main() {
-    std::string name;
-    int age;
-    double weight, height;
+    int numUsers;
 
-    std::cout << "Enter your name: ";
-    std::getline(std::cin, name);
+    std::cout << "Enter the number of users: ";
+    std::cin >> numUsers;
 
-    std::cout << "Enter your age: ";
-    std::cin >> age;
+    // Properly create an array of User objects
+    User users[numUsers];
 
-    std::cout << "Enter your weight (in kg): ";
-    std::cin >> weight;
+    // Initialize each user
+    for (int i = 0; i < numUsers; ++i) {
+        std::string name;
+        int age;
+        double weight, height;
 
-    std::cout << "Enter your height (in cm): ";
-    std::cin >> height;
+        std::cout << "\nEnter details for User " << i + 1 << std::endl;
+        std::cout << "Enter your name: ";
+        std::cin >> name;
+        std::cout << "Enter your age: ";
+        std::cin >> age;
+        std::cout << "Enter your weight (in kg): ";
+        std::cin >> weight;
+        std::cout << "Enter your height (in cm): ";
+        std::cin >> height;
 
-    User user(name, age, weight, height);
+        users[i] = User(name, age, weight, height);
 
-    char choice;
-    do {
-        int type, duration;
+        char choice;
+        do {
+            int type, duration;
 
-        std::cout << "Log an exercise (1 for Cardio, 2 for Strength): ";
-        std::cin >> type;
+            std::cout << "Log an exercise (1 for Cardio, 2 for Strength): ";
+            std::cin >> type;
 
-        std::cout << "Enter duration (in minutes): ";
-        std::cin >> duration;
+            std::cout << "Enter duration (in minutes): ";
+            std::cin >> duration;
 
-        if (type == 1) {
-            Cardio cardio(duration);
-            user.addExercise(cardio);
-        } else if (type == 2) {
-            Strength strength(duration);
-            user.addExercise(strength);
-        }
+            if (type == 1) {
+                users[i].addExercise(new Cardio(duration));
+            } else if (type == 2) {
+                users[i].addExercise(new Strength(duration));
+            }
 
-        std::cout << "Do you want to log another exercise? (y/n): ";
-        std::cin >> choice;
+            std::cout << "Do you want to log another exercise? (y/n): ";
+            std::cin >> choice;
 
-        std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+            std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
 
-    } while (choice == 'y' || choice == 'Y');
+        } while (choice == 'y' || choice == 'Y');
+    }
 
-    user.displayProgress();
+    // Display progress for all users
+    for (int i = 0; i < numUsers; ++i) {
+        std::cout << "\nProgress for User " << i + 1 << std::endl;
+        users[i].displayProgress();
+    }
 
     return 0;
-};
+}
