@@ -3,6 +3,9 @@
 #include <string>
 #include <limits>
 
+// Encapsulation in the Exercise class:
+
+
 class Exercise {
 protected:
     std::string type;
@@ -33,6 +36,9 @@ public:
         caloriesBurned = duration * 5.0; // example calculation
     }
 };
+
+
+// Encapsulation in the User class:
 
 class User {
 private:
@@ -75,7 +81,7 @@ public:
         exercise->calculateCalories();
         exercises.push_back(exercise);
     }
-
+// Encapsulation of totalUsers variable:
     double totalCaloriesBurned() const {
         double total = 0;
         for (const auto& exercise : exercises) {
