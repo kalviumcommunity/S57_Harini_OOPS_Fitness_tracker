@@ -14,17 +14,19 @@ protected:
 
 // Pure virtual function (calculateCalories()).
 public:
+// constructor
     Exercise(std::string t, int d) : type(t), duration(d), caloriesBurned(0) {}
     virtual void calculateCalories() = 0; // pure virtual function
     double getCaloriesBurned() const { return caloriesBurned; }
     std::string getType() const { return type; }
     int getDuration() const { return duration; }
-    virtual ~Exercise() {} // virtual destructor 
+    virtual ~Exercise() {}   // virtual destructor 
 };
 
 class Cardio : public Exercise {
 public:
-// Derived class Cardio implements the abstract function.
+// Derived  constructor class Cardio implements the abstract function.
+
     Cardio(int duration) : Exercise("Cardio", duration) {}
     void calculateCalories() override {
         caloriesBurned = duration * 8.0; 
@@ -32,7 +34,7 @@ public:
 };
 
 class Strength : public Exercise {
-// Derived class Strength implements the abstract function.
+// Derived constructor class Strength implements the abstract function.
 
 public:
     Strength(int duration) : Exercise("Strength", duration) {}
@@ -50,7 +52,7 @@ private:
     int age;
     double weight; // in kg
     double height; // in cm
-    std::vector<Exercise*> exercises; // vector of pointers
+    std::vector<Exercise*> exercises; //constructor call dynamically creates User objects
 
     static int totalUsers; // Static variable to count the total number of users
 
@@ -112,7 +114,7 @@ public:
         for (auto& exercise : exercises) {
             delete exercise; // free dynamically allocated memory for exercises
         }
-        --totalUsers; // Decrement the static variable when a user is deleted
+        --totalUsers;      // Decrement the static variable when a user is deleted
     }
 };
 
@@ -174,13 +176,13 @@ int main() {
     for (int i = 0; i < numUsers; ++i) {
         std::cout << "\nProgress for User " << i + 1 << std::endl;
         users[i]->displayProgress();
-        delete users[i]; // Free memory for each User object
+        delete users[i]; // destructor  Free memory for each User object
     }
 
     // Static function call to get the total number of users
-    std::cout << "\nTotal number of users at the end: " << User::getTotalUsers() << std::endl; // Line 120
+    std::cout << "\nTotal number of users at the end: " << User::getTotalUsers() << std::endl; 
 
-    delete[] users; // Free memory for the array of pointers
+    delete[] users; // destructor  Free memory for the array of pointers
 
     return 0;
 }
