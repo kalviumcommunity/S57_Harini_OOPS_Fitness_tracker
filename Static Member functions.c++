@@ -3,37 +3,41 @@
 #include <string>
 #include <limits>
 
-// Encapsulation in the Exercise class:
 
-
+// Abstract base class definition (Exercise).
 class Exercise {
 protected:
     std::string type;
     int duration; // minutes
     double caloriesBurned;
 
+
+// Pure virtual function (calculateCalories()).
 public:
     Exercise(std::string t, int d) : type(t), duration(d), caloriesBurned(0) {}
     virtual void calculateCalories() = 0; // pure virtual function
     double getCaloriesBurned() const { return caloriesBurned; }
     std::string getType() const { return type; }
     int getDuration() const { return duration; }
-    virtual ~Exercise() {} // virtual destructor
+    virtual ~Exercise() {} // virtual destructor 
 };
 
 class Cardio : public Exercise {
 public:
+// Derived class Cardio implements the abstract function.
     Cardio(int duration) : Exercise("Cardio", duration) {}
     void calculateCalories() override {
-        caloriesBurned = duration * 8.0; // example calculation
+        caloriesBurned = duration * 8.0; 
     }
 };
 
 class Strength : public Exercise {
+// Derived class Strength implements the abstract function.
+
 public:
     Strength(int duration) : Exercise("Strength", duration) {}
     void calculateCalories() override {
-        caloriesBurned = duration * 5.0; // example calculation
+        caloriesBurned = duration * 5.0;
     }
 };
 
