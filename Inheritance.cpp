@@ -3,7 +3,6 @@
 #include <string>
 #include <limits>
 
-// Abstract base class definition (Exercise).
 class Exercise {
 protected:
     std::string type;
@@ -96,7 +95,7 @@ public:
         std::cout << "Total Calories Burned: " << totalCaloriesBurned() << std::endl;
         for (const auto& exercise : exercises) {
             std::cout << "Exercise: " << exercise->getType() << ", Duration: " << exercise->getDuration()
-                      << " minutes, Calories Burned: " << exercise->getCaloriesBurned() << std::endl;
+                      << " minutes, Calories Burned: " << exercise->getCaloriesBurned() << std::endl;//  calling the polymorphism
         }
     }
 
@@ -178,6 +177,7 @@ int main() {
 
             std::cout << "Enter duration (in minutes): ";
             std::cin >> duration;
+            //virtual function in polymorphism 
 
             if (type == 1) {
                 users[i]->addExercise(new Cardio(duration));
