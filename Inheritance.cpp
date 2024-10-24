@@ -3,6 +3,8 @@
 #include <string>
 #include <limits>
 
+
+//Abstract  class 
 class Exercise {
 protected:
     std::string type;
@@ -13,18 +15,20 @@ protected:
 public:
     // constructor
     Exercise(std::string t, int d) : type(t), duration(d), caloriesBurned(0) {}
-    virtual void calculateCalories() = 0; // pure virtual function
+    virtual void calculateCalories() = 0; // pure virtual function in abstract class 
     double getCaloriesBurned() const { return caloriesBurned; }
     std::string getType() const { return type; }
     int getDuration() const { return duration; }
     virtual ~Exercise() {} // virtual destructor
 };
 
+//implementation of virtual function 
+
 class Cardio : public Exercise {
 public:
     // Derived class Cardio implements the abstract function.
     Cardio(int duration) : Exercise("Cardio", duration) {}
-    void calculateCalories() override {
+    void calculateCalories() override { // Virtual function implementation in Cardio
         caloriesBurned = duration * 8.0; 
     }
 };
@@ -75,6 +79,8 @@ public:
         this->height = h;
         return *this;
     }
+
+
 
     void addExercise(Exercise* exercise) {
         exercise->calculateCalories();
