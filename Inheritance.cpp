@@ -79,8 +79,7 @@ public:
         this->height = h;
         return *this;
     }
-
-
+    
 
     void addExercise(Exercise* exercise) {
         exercise->calculateCalories();
