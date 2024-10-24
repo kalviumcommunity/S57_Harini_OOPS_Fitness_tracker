@@ -105,7 +105,7 @@ public:
         }
     }
 
-    // Static member function to get the total number of users
+    //Encapasulation  Static member function to get the total number of users
     static int getTotalUsers() {
         return totalUsers;       
     }
