@@ -1,0 +1,221 @@
+#include <iostream>
+#include <vector>
+#include <string>
+#include <limits>
+#include <memory>
+
+// Abstract class for Exercise
+class Exercise {
+protected:
+    std::string type;
+    int duration;          
+    double caloriesBurned;  
+
+public:
+    Exercise(std::string t, int d) : type(t), duration(d), caloriesBurned(0) {}
+    virtual void calculateCalories() = 0;  // Pure virtual function
+    double getCaloriesBurned() const { return caloriesBurned; }
+    std::string getType() const { return type; }
+    int getDuration() const { return duration; }
+    virtual ~Exercise() {}
+};
+
+// Cardio class
+class Cardio : public Exercise {
+public:
+    Cardio(int duration) : Exercise("Cardio", duration) {}
+    void calculateCalories() override {
+        caloriesBurned = duration * 8.0;
+    }
+};
+
+// Strength class
+class Strength : public Exercise {
+public:
+    Strength(int duration) : Exercise("Strength", duration) {}
+    void calculateCalories() override {
+        caloriesBurned = duration * 5.0;
+    }
+};
+
+// Abstract Factory Interface for Exercises
+class IExerciseFactory {
+public:
+    virtual Exercise* createExercise(int duration) const = 0;
+    virtual ~IExerciseFactory() {}
+};
+
+// Factory for Cardio
+class CardioFactory : public IExerciseFactory {
+public:
+    Exercise* createExercise(int duration) const override {
+        return new Cardio(duration);
+    }
+};
+
+// Factory for Strength
+class StrengthFactory : public IExerciseFactory {
+public:
+    Exercise* createExercise(int duration) const override {
+        return new Strength(duration);
+    }
+};
+
+// Interface for UserOperations
+class IUserOperations {
+public:
+    virtual void addExercise(Exercise* exercise) = 0;
+    virtual double totalCaloriesBurned() const = 0;
+    virtual void displayProgress() const = 0;
+    virtual ~IUserOperations() {}
+};
+
+// User class implementing IUserOperations
+class User : public IUserOperations {
+protected:
+    std::string name;
+    int age;
+    double weight;
+    double height;
+    std::vector<std::unique_ptr<Exercise>> exercises;
+
+    static int totalUsers;
+
+public:
+    User(std::string n, int a, double w, double h)
+        : name(n), age(a), weight(w), height(h) {
+        ++totalUsers;
+    }
+
+    void addExercise(Exercise* exercise) override {
+        std::unique_ptr<Exercise> exPtr(exercise);
+        exPtr->calculateCalories();
+        exercises.push_back(std::move(exPtr));
+    }
+
+    double totalCaloriesBurned() const override {
+        double total = 0;
+        for (const auto& exercise : exercises) {
+            total += exercise->getCaloriesBurned();
+        }
+        return total;
+    }
+
+    void displayProgress() const override {
+        std::cout << "User: " << name << std::endl;
+        std::cout << "Total Calories Burned: " << totalCaloriesBurned() << std::endl;
+        for (const auto& exercise : exercises) {
+            std::cout << "Exercise: " << exercise->getType()
+                      << ", Duration: " << exercise->getDuration()
+                      << " minutes, Calories Burned: " << exercise->getCaloriesBurned() << std::endl;
+        }
+    }
+
+    static int getTotalUsers() {
+        return totalUsers;
+    }
+
+    virtual ~User() {
+        --totalUsers;
+    }
+};
+
+int User::totalUsers = 0;
+
+// PremiumUser class overriding User methods
+class PremiumUser : public User {
+public:
+    PremiumUser(std::string n, int a, double w, double h)
+        : User(n, a, w, h) {}
+
+    double totalCaloriesBurned() const override {
+        return User::totalCaloriesBurned() * 1.5;
+    }
+
+    void displayProgress() const override {
+        std::cout << "Premium User: " << name << " (1.5x calorie burn benefit)\n";
+        User::displayProgress();
+    }
+};
+
+// InputHandler class to separate user input logic
+class InputHandler {
+public:
+    static User* createUser() {
+        std::string name;
+        int age;
+        double weight, height;
+
+        std::cout << "Enter your name: ";
+        std::cin >> name;
+        std::cout << "Enter your age: ";
+        std::cin >> age;
+        std::cout << "Enter your weight (in kg): ";
+        std::cin >> weight;
+        std::cout << "Enter your height (in cm): ";
+        std::cin >> height;
+
+        char userType;
+        std::cout << "Is this user premium? (y/n): ";
+        std::cin >> userType;
+
+        if (userType == 'y' || userType == 'Y') {
+            return new PremiumUser(name, age, weight, height);
+        } else {
+            return new User(name, age, weight, height);
+        }
+    }
+
+    static void logExercise(User* user) {
+        char choice;
+        do {
+            int type, duration;
+
+            std::cout << "Log an exercise (1 for Cardio, 2 for Strength): ";
+            std::cin >> type;
+
+            std::cout << "Enter duration (in minutes): ";
+            std::cin >> duration;
+
+            std::unique_ptr<IExerciseFactory> factory;
+            if (type == 1) {
+                factory = std::make_unique<CardioFactory>();
+            } else if (type == 2) {
+                factory = std::make_unique<StrengthFactory>();
+            }
+
+            if (factory) {
+                user->addExercise(factory->createExercise(duration));
+            }
+
+            std::cout << "Do you want to log another exercise? (y/n): ";
+            std::cin >> choice;
+
+        } while (choice == 'y' || choice == 'Y');
+    }
+};
+
+// Main function
+int main() {
+    int numUsers;
+
+    std::cout << "Enter the number of users: ";
+    std::cin >> numUsers;
+
+    std::vector<std::unique_ptr<User>> users;
+
+    for (int i = 0; i < numUsers; ++i) {
+        std::cout << "\nEnter details for User " << i + 1 << std::endl;
+        User* user = InputHandler::createUser();
+        InputHandler::logExercise(user);
+        users.push_back(std::unique_ptr<User>(user));
+    }
+
+    for (const auto& user : users) {
+        user->displayProgress();
+    }
+
+    std::cout << "\nTotal number of users at the end: " << User::getTotalUsers() << std::endl;
+
+    return 0;
+}
