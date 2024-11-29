@@ -1,0 +1,123 @@
+#include <iostream>
+#include <vector>
+#include <string>
+#include <memory>
+
+// Abstract class for Exercise
+class Exercise {
+protected:
+    std::string type;
+    int duration;          
+    double caloriesBurned;  
+
+public:
+    Exercise(std::string t, int d) : type(t), duration(d), caloriesBurned(0) {}
+    virtual void calculateCalories() = 0;  // Pure virtual function
+    double getCaloriesBurned() const { return caloriesBurned; }
+    std::string getType() const { return type; }
+    int getDuration() const { return duration; }
+    virtual ~Exercise() {}
+};
+
+// Cardio class
+class Cardio : public Exercise {
+public:
+    Cardio(int duration) : Exercise("Cardio", duration) {}
+    void calculateCalories() override {
+        caloriesBurned = duration * 8.0;
+    }
+};
+
+// Strength class
+class Strength : public Exercise {
+public:
+    Strength(int duration) : Exercise("Strength", duration) {}
+    void calculateCalories() override {
+        caloriesBurned = duration * 5.0;
+    }
+};
+
+// User class
+class User {
+protected:
+    std::string name;
+    int age;
+    double weight;
+    double height;
+    std::vector<std::unique_ptr<Exercise>> exercises;
+
+public:
+    User(std::string n, int a, double w, double h)
+        : name(n), age(a), weight(w), height(h) {}
+
+    virtual void addExercise(Exercise* exercise) {
+        std::unique_ptr<Exercise> exPtr(exercise);
+        exPtr->calculateCalories();
+        exercises.push_back(std::move(exPtr));
+    }
+
+    virtual double totalCaloriesBurned() const {
+        double total = 0;
+        for (const auto& exercise : exercises) {
+            total += exercise->getCaloriesBurned();
+        }
+        return total;
+    }
+
+    virtual void displayProgress() const {
+        std::cout << "User: " << name << "\n";
+        std::cout << "Total Calories Burned: " << totalCaloriesBurned() << "\n";
+        for (const auto& exercise : exercises) {
+            std::cout << "Exercise: " << exercise->getType()
+                      << ", Duration: " << exercise->getDuration()
+                      << " minutes, Calories Burned: " << exercise->getCaloriesBurned() << "\n";
+        }
+    }
+
+    virtual ~User() {}
+};
+
+// PremiumUser class
+class PremiumUser : public User {
+public:
+    PremiumUser(std::string n, int a, double w, double h)
+        : User(n, a, w, h) {}
+
+    double totalCaloriesBurned() const override {
+        return User::totalCaloriesBurned() * 1.5;  // Premium users burn 1.5x calories
+    }
+
+    void displayProgress() const override {
+        std::cout << "Premium User: " << name << " (1.5x calorie burn bonus)\n";
+        User::displayProgress();
+    }
+};
+
+// Main function to demonstrate LSP
+int main() {
+    // Create standard and premium users
+    std::unique_ptr<User> user1 = std::make_unique<User>("Alice", 25, 60.0, 165.0);
+    std::unique_ptr<User> user2 = std::make_unique<PremiumUser>("Bob", 30, 75.0, 180.0);
+
+    // Log exercises for both users
+    user1->addExercise(new Cardio(30));  // Cardio exercise for 30 minutes
+    user1->addExercise(new Strength(20));  // Strength exercise for 20 minutes
+
+    user2->addExercise(new Cardio(45));  // Cardio exercise for 45 minutes
+    user2->addExercise(new Strength(30));  // Strength exercise for 30 minutes
+
+    // Display progress for both users
+    user1->displayProgress();
+    user2->displayProgress();
+
+    // Demonstrate LSP: Using base class pointers to call derived class methods
+    std::cout << "\n=== Demonstrating LSP ===\n";
+    std::vector<User*> allUsers = {user1.get(), user2.get()};
+
+    for (User* user : allUsers) {
+        user->displayProgress();  // Works seamlessly for both User and PremiumUser
+        std::cout << "\n";
+    }
+
+    return 0;
+}
